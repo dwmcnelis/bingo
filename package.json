@@ -27,6 +27,7 @@
 		"@types/koa-compress": "^2.0.9",
 		"@types/koa-router": "^7.4.0",
 		"@types/lodash": "^4.14.149",
+		"@types/pdfkit": "^0.10.5",
 		"@types/pino": "^5.17.0",
 		"nodemon": "^2.0.3",
 		"prettier": "^2.0.4",
