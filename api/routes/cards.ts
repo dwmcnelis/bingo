@@ -1,7 +1,7 @@
 import * as Router from 'koa-router'
 import { Card } from '../models'
-import { json, pdf } from '../renderers'
-import logger from '../lib/logger'
+import { json, pdf, zip } from '../renderers'
+import { logger } from '../lib'
 
 const base_url = '/api/cards'
 const router = new Router()
@@ -25,7 +25,7 @@ router.post(`${base_url}:suffix?`, async (ctx, next) => {
 
   interface PostFields {
     numbers: any[],
-    files?: number
+    packs?: number
     pages?: number
     per?: number
   }
@@ -38,6 +38,7 @@ router.post(`${base_url}:suffix?`, async (ctx, next) => {
   const validate = card.validate()
   if (!validate.valid) {
     validate.errors.forEach((error) => logger.error(`Validation Error: ${error}`))
+    ctx.type = 'application/json; charset=utf-8'
     ctx.status = 400
     ctx.body = {
       status: 'error',
@@ -46,20 +47,40 @@ router.post(`${base_url}:suffix?`, async (ctx, next) => {
   }
   else {
 
-    let { files, pages, per }: PostFields = body
-    files = files || 1
+    let { packs, pages, per }: PostFields = body
+    packs = packs || 1
     pages = pages || 1
     per = per || 1
 
-    let cards = card.generate(files, pages, per)
+    let cards = card.generate(packs, pages, per)
 
     try {
 
       if (suffix === '.json') {
-        json.render(cards, ctx)
+        ctx.attachment('cards.json')
+        ctx.type = 'application/json; charset=utf-8'
+        ctx.status = 200
+        ctx.body = json.render(cards)
       }
       else if (suffix === '.pdf') {
-        pdf.render(cards, ctx)
+        ctx.attachment('cards.pdf')
+        ctx.type = 'application/pdf'
+        ctx.status = 200
+        ctx.body = pdf.render(cards)
+      }
+      else if (suffix === '.zip') {
+        ctx.attachment('cards.zip')
+        ctx.type = 'application/zip'
+        ctx.status = 200
+        ctx.body = zip.render(cards)
+      }
+      else {
+        ctx.type = 'application/json; charset=utf-8'
+        ctx.status = 400
+        ctx.body = {
+          status: 'error',
+          message: `Type ${suffix} unsupported`
+        }
       }
 
     } catch (err) {

@@ -36,13 +36,19 @@ class Card {
   _card() {
     if (this._chunks.length === 5) {
       this._shuffle()
+      let b = this._chunks[0].slice(0, 5)
+      let i = this._chunks[1].slice(0, 5)
+      let n = this._chunks[2].slice(0, 5)
+      n[2] = 'Free'
+      let g = this._chunks[3].slice(0, 5)
+      let o = this._chunks[4].slice(0, 5)
       return {
         title: this._title,
-        'B': this._chunks[0].slice(0, 5),
-        'I': this._chunks[1].slice(0, 5),
-        'N': [this._chunks[2][0], this._chunks[2][1], 'Free', this._chunks[2][3], this._chunks[2][4]],
-        'G': this._chunks[3].slice(0, 5),
-        'O': this._chunks[4].slice(0, 5)
+        'B': b,
+        'I': i,
+        'N': n,
+        'G': g,
+        'O': o
       }
     }
   }
@@ -67,9 +73,9 @@ class Card {
     }
   }
 
-  generate(files, pages, per) {
+  generate(packs, pages, per) {
     let cards = []
-    for (let i = 0; i < files; i++) {
+    for (let i = 0; i < packs; i++) {
       let file = []
       for (let j = 0; j < pages; j++) {
         let page = []
