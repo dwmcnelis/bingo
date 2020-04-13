@@ -12,8 +12,6 @@ class Bingo extends Component {
 	 * Constructor
 	 * State Variables
 	 * balls: balls object, holds letter, number, called and active statues
-	 * running: determines if the game is presently running
-	 * interval & delay: how often the balls are generated
 	 */
 	constructor(props) {
 		super(props)
@@ -94,11 +92,7 @@ class Bingo extends Component {
 				73: { letter: 'O', number: 73, called: false, active: false },
 				74: { letter: 'O', number: 74, called: false, active: false },
 				75: { letter: 'O', number: 75, called: false, active: false }
-			},
-			newGame: true,
-			running: false,
-			interval: 0,
-			delay: 10000
+			}
 		}
 	}
 
@@ -108,53 +102,12 @@ class Bingo extends Component {
 	 *  active and called statuses to false
 	 */
 	resetGame = () => {
-		if (this.state.running === true) {
-			clearInterval(this.state.interval)
-		}
 		let resetBalls = this.state.balls
 		_.map(resetBalls, (ball, index) => {
 			resetBalls[index].active = false
 			resetBalls[index].called = false
 		})
-		this.setState({ balls: resetBalls, newGame: true, running: false })
-	}
-
-	startGame = () => {
-		if (this.state.newGame) {
-		}
-		// setTimeout(this.toggleGame, 1500)
-	}
-
-	/*
-	 *  Toggle Game Function
-	 *  Check the opposite of the current running state, this will determine our new state
-	 *  If the game is now running, call a number right away then set a new interval
-	 *  Otherwise, clear the interval
-	 *  Set the current running state
-	 */
-	toggleGame = () => {
-		if (!this.state.running === true) {
-			this.callNumber()
-			this.setState({ interval: setInterval(this.callNumber, this.state.delay) })
-		} else {
-			clearInterval(this.state.interval)
-		}
-		this.setState({ newGame: false, running: !this.state.running })
-	}
-
-	/*
-	 *  Set Delay Function
-	 *  Fires when the user uses the delay slider
-	 *  If the game is running it'll clear the existing interval and set a new one
-	 *  Otherwise it will just update the delay
-	 */
-	setDelay = (e) => {
-		if (this.state.running) {
-			clearInterval(this.state.interval)
-			this.setState({ delay: e.target.value, interval: setInterval(this.callNumber, e.target.value) })
-		} else {
-			this.setState({ delay: e.target.value })
-		}
+		this.setState({ balls: resetBalls })
 	}
 
 	/*
@@ -200,12 +153,12 @@ class Bingo extends Component {
 				<Tabs>
 					<TabList>
 						<Tab>Cards</Tab>
-						<Tab>Patterns</Tab>
-						<Tab>Caller</Tab>
+						<Tab>Pattern</Tab>
+						<Tab>Game</Tab>
 					</TabList>
 
 					<TabPanel>
-						<h2>Cards</h2>
+						<h2>CARDS</h2>
 					</TabPanel>
 					<TabPanel>
 						<section>
@@ -219,11 +172,11 @@ class Bingo extends Component {
 					<TabPanel>
 						<section id="board">
 							<div className="row flex">
+								<div className="col c15 ballcol">
+									<BallDisplay balls={this.state.balls} />
+								</div>
 								<div className="col c85">
 									<BingoBoard balls={this.state.balls} />
-								</div>
-								<div className="col c15 padding">
-									<BallDisplay balls={this.state.balls} />
 								</div>
 							</div>
 						</section>
@@ -231,28 +184,17 @@ class Bingo extends Component {
 						<section id="buttons">
 							<div className="row">
 								<div className="col c40">
-									{/* <button onClick={this.state.newGame ? this.startGame : this.toggleGame}>
-										{this.state.newGame ? 'Start' : this.state.running ? 'Pause' : 'Resume'}
-									</button> */}
-									<button onClick={this.callNumber} disabled={this.state.running ? 'disabled' : ''}>
+									<button onClick={this.callNumber}>
 										Next
 									</button>
 									<button onClick={this.resetGame}>Reset</button>
 								</div>
-								<div className="col c40 text-center">
-									{/* <div id="speed">
-										<span>Slow</span><input onChange={(e) => this.setDelay(e)} type="range" value={this.state.delay} min="5000" max="16000" step="1000" /><span>Fast</span>
-									</div> */}
-								</div>
-								<div className="col c20 text-right"></div>
+								<div className="col c60 text-right"></div>
 							</div>
 						</section>
 					</TabPanel>
 				</Tabs>
-				<footer>
-					<div className="row"></div>
-				</footer>
-			</div>
+			</div >
 		)
 	}
 }

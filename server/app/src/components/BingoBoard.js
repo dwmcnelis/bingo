@@ -18,14 +18,6 @@ class BingoBoard extends React.Component {
 			O: _.where(balls, { letter: 'O' })
 		}
 
-		const backgrounds = {
-			B: 'indigo',
-			I: 'ruby',
-			N: 'kelly',
-			G: 'alice',
-			O: 'coral'
-		}
-
 		return (
 			<div className="board notranslate">
 				{_.map(rows, (row, letter) => (
@@ -37,8 +29,6 @@ class BingoBoard extends React.Component {
 							<div
 								key={ball.letter + ball.number}
 								className={
-									backgrounds[ball.letter] +
-									'light ' +
 									(ball.called && ball.active ? 'active ball' : ball.called ? 'called ball' : 'ball')
 								}
 							>
