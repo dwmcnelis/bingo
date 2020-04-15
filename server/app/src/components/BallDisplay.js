@@ -1,9 +1,3 @@
-/*
- *  Ball Display Class
- *  Karol Brennan
- *  5.13.2018
- *  This class is used to display the current ball.
- */
 import React from 'react'
 import _ from 'underscore'
 

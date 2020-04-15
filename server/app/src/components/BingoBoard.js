@@ -1,9 +1,3 @@
-/*
- *  Bingo Board Class
- *  Karol Brennan
- *  5.13.2018
- *  This class is used to display the bingo board
- */
 import React from 'react'
 import _ from 'underscore'
 
