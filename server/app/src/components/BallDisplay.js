@@ -1,9 +1,10 @@
 import React from 'react'
-import _ from 'underscore'
 
 class BallDisplay extends React.Component {
+
 	render() {
-		let currentBall = _.where(this.props.balls, { active: true })[0]
+		let ballCount = Object.values(this.props.balls).filter((ball) => ball.called).length
+		let currentBall = Object.values(this.props.balls).filter((ball) => ball.active)[0]
 		if (currentBall) {
 			let color = 'white'
 			switch (currentBall.letter) {
@@ -26,8 +27,8 @@ class BallDisplay extends React.Component {
 					break
 			}
 			return (
-				<div id="ball" className={color + ' relative notranslate'}>
-					<div id="ballcount">{_.where(this.props.balls, { called: true }).length}</div>
+				<div id="ball" className={color + ' relative'}>
+					<div id="ballcount">{ballCount}</div>
 					<div className="content">
 						<span>
 							{currentBall.letter}
@@ -39,10 +40,10 @@ class BallDisplay extends React.Component {
 			)
 		} else {
 			return (
-				<div id="ball" className="white relative notranslate">
-					<div id="ballcount">{_.where(this.props.balls, { called: true }).length}</div>
+				<div id="ball" className="white relative">
+					<div id="ballcount">{ballCount}</div>
 					<div className="content">
-						<span>{/* <img src={logo} alt="Lets Play Bingo Logo"/> */}</span>
+						<span></span>
 					</div>
 				</div>
 			)

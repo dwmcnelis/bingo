@@ -1,7 +1,4 @@
 import React from 'react'
-import _ from 'underscore'
-import Select from 'react-select'
-import 'react-select/dist/react-select.css'
 
 const Title = ({ title, setTitle }) => {
   let input = ''
@@ -67,23 +64,26 @@ const GroupForm = ({ addGroup }) => {
   )
 }
 
-const Group = ({ group, lessPlayers, morePlayers, remove }) => {
+const Group = ({ group, doublesided, toggleDoubleSided, lessPlayers, morePlayers, remove }) => {
   return (
     <li className="group noselect" >
-      <span className="group-name noselect">{group.name}</span>
+      <span className="group-name noselect">Group: {group.name} </span>
       <span className="spinner-container noselect">
+        <span className="spinner-text noselect" > | Players: </span>
         <span className="spinner-left noselect" onClick={() => { lessPlayers(group.id) }}>-</span>
         <span className="spinner-text noselect" >{group.players}</span>
         <span className="spinner-right noselect" onClick={() => { morePlayers(group.id) }}>+</span>
+        <span className="spinner-text noselect" > | Double Sided: </span>
+        <span className={doublesided ? "checked noselect" : "unchecked noselect"} onClick={() => { toggleDoubleSided(group.id) }}>✔</span>
         <span className="group-remove noselect" onClick={() => { remove(group.id) }}>X</span>
       </span>
     </li >
   )
 }
 
-const GroupList = ({ groups, remove, lessPlayers, morePlayers }) => {
+const GroupList = ({ groups, remove, toggleDoubleSided, lessPlayers, morePlayers }) => {
   const groupNode = groups.map((group) => {
-    return (<Group group={group} key={group.id} remove={remove} lessPlayers={lessPlayers} morePlayers={morePlayers} />)
+    return (<Group group={group} key={group.id} remove={remove} doublesided={group.doublesided} toggleDoubleSided={toggleDoubleSided} lessPlayers={lessPlayers} morePlayers={morePlayers} />)
   })
   return (<ul className="groups" ><li className="group-header">Groups</li>{groupNode}</ul>)
 }
@@ -114,7 +114,7 @@ class Cards extends React.Component {
   addGroup(val) {
     if (val && val.length > 0) {
       if (this.state.groups.length < window.max_groups) {
-        const group = { name: val, players: 4, id: window.group_id++ }
+        const group = { name: val, players: 4, doublesided: false, id: window.group_id++ }
         this.state.groups.push(group)
         this.setState({ groups: this.state.groups })
       }
@@ -124,6 +124,7 @@ class Cards extends React.Component {
   handleRemove(id) {
     const remainder = this.state.groups.filter((group) => {
       if (group.id !== id) return group
+      return undefined
     })
     this.setState({ groups: remainder })
   }
@@ -158,6 +159,18 @@ class Cards extends React.Component {
     this.setState({ groups: groups })
   }
 
+  toggleDoubleSided(id) {
+    const groups = this.state.groups.map((group) => {
+      if (group.id === id) {
+        group.doublesided = !group.doublesided
+        return group
+      } else {
+        return group
+      }
+    })
+    this.setState({ groups: groups })
+  }
+
   handleMoreGames() {
     let games = this.state.games
     games = games + 1
@@ -182,13 +195,17 @@ class Cards extends React.Component {
       per = 2
     } else if (per === 2) {
       per = 4
+    } else if (per === 4) {
+      per = 6
     }
     this.setState({ per: per })
   }
 
   handleLessPer() {
     let per = this.state.per
-    if (per === 4) {
+    if (per === 6) {
+      per = 4
+    } else if (per === 4) {
       per = 2
     } else if (per === 2) {
       per = 1
@@ -196,13 +213,17 @@ class Cards extends React.Component {
     this.setState({ per: per })
   }
 
+  downloadUrl(url, filename) {
+    const a = document.createElement('a')
+    a.href = url;
+    a.download = filename || 'download'
+    a.click()
+    return
+  }
+
   handleDownload() {
     if (this.state.groups.length > 0) {
-      console.log('download', this.state)
-      window.open('/api/cards.pdf?title="Bingo"&packs=1&pages=1&per=4')
-
-    } else {
-      console.log('<empty>')
+      this.downloadUrl(`/api/cards.zip?title=${this.state.title}&games=${this.state.games}&per=${this.state.per}&groups=${JSON.stringify(this.state.groups)}`, 'cards.pdf')
     }
   }
 
@@ -231,6 +252,7 @@ class Cards extends React.Component {
           <GroupList
             groups={this.state.groups}
             remove={this.handleRemove.bind(this)}
+            toggleDoubleSided={this.toggleDoubleSided.bind(this)}
             lessPlayers={this.handleLessPlayers.bind(this)}
             morePlayers={this.handleMorePlayers.bind(this)}
           />
@@ -242,11 +264,13 @@ class Cards extends React.Component {
 "groups": [
 {
 "name": "mcnelis",
-"players": 4
+"players": 4,
+"doublesided": true
 },
 {
 "name": "micci-smith",
-"players": 6
+"players": 6,
+"doublesided": false
 }
 ],
 "games": 8,
@@ -257,7 +281,7 @@ class Cards extends React.Component {
           <div className="col c100">
             <button onClick={this.handleDownload.bind(this)} disabled={this.state.groups.length <= 0}>
               Download
-            </button>
+          </button>
           </div>
         </div>
       </div>

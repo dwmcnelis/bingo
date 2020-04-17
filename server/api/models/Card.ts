@@ -124,7 +124,7 @@ class Card {
 				I: i,
 				N: n,
 				G: g,
-				O: o
+				O: o,
 			}
 		}
 	}
@@ -149,20 +149,59 @@ class Card {
 		}
 	}
 
-	generate(packs, pages, per) {
-		let cards = []
-		for (let i = 0; i < packs; i++) {
-			let file = []
-			for (let j = 0; j < pages; j++) {
-				let page = []
-				for (let k = 0; k < per; k++) {
-					page.push(this._card())
-				}
-				file.push(page)
+	// {
+	// 	games: 8,
+	// 	per: 4,
+	// 	title: 'Family Bingo',
+	// 	groups: [
+	// 		{ name: 'McNelis', players: 4, doublesided: true, id: 1 },
+	// 		{ name: 'Micci-Smith', players: 5, doublesided: false, id: 2 }
+	// 	]
+	// }
+
+	// {
+	// 	games: 8,
+	// 	per: 4,
+	// 	groups: [
+	// 		{
+	// 			name: 'McNelis', players: 4, doublesided: true, cards: [
+	// 				{
+	// 					title: 'Bingo',
+	// 					B: b,
+	// 					I: i,
+	// 					N: n,
+	// 					G: g,
+	// 					O: o,
+	// 				}
+	// 			]
+	// 		}
+	// 	]
+	// }
+
+	generate(games, per, groups) {
+		let players = groups.reduce((reduced, group) => {
+			reduced = reduced + group.players
+			return reduced
+		}, 0)
+		let total = games * players
+
+		let packs = []
+		groups.forEach((group) => {
+			let total = games * group.players
+			let pack = { name: group.name, players: group.players, doublesided: group.doublesided, total }
+			let cards = []
+			for (let i = 0; i < total; i++) {
+				cards.push(this._card())
 			}
-			cards.push(file)
+			pack['cards'] = cards
+			packs.push(pack)
+		})
+
+		return {
+			games,
+			per,
+			groups: packs
 		}
-		return cards
 	}
 
 	debug() {

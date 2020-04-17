@@ -1,7 +1,4 @@
 import React from 'react'
-import _ from 'underscore'
-import Select from 'react-select'
-import 'react-select/dist/react-select.css'
 
 class Menu extends React.Component {
 
@@ -13,7 +10,6 @@ class Menu extends React.Component {
 	}
 
 	handleClick(m, index) {
-		console.log('handleClick: m:', m, ', index: ', index)
 		this.setState({ selected: index })
 		if (typeof this.props.onChange === 'function') {
 			this.props.onChange(m)
@@ -36,6 +32,7 @@ class Menu extends React.Component {
 }
 
 class Pattern extends React.Component {
+
 	constructor(props) {
 		super(props)
 		this.state = {
@@ -821,10 +818,13 @@ class Pattern extends React.Component {
 	 */
 	render() {
 		let pattern = this.state.pattern
-		let patternArray = [_.map(this.state.presets, (preset, value) => ({ value: value, label: `${value} (${preset.length})` }))]
+		let patternArray = Object.entries(this.state.presets).reduce((reduced, [name, pattern]) => {
+			reduced.push({ value: name, label: name })
+			return reduced
+		}, [])
 
 		return (
-			<div id="bingopattern" className="notranslate">
+			<div id="bingopattern" className="">
 				<div className="row ">
 					<div className="col c20 padding align-left">
 						<Menu
@@ -832,14 +832,14 @@ class Pattern extends React.Component {
 							className="patternmenu"
 							value={this.state.selected}
 							onChange={this.choosePattern}
-							options={patternArray[0]}
+							options={patternArray}
 						/>
 					</div>
 					<div className="col c80 padding align-left">
-						{_.map(pattern, (column, letter) => (
+						{Object.entries(pattern).map(([letter, column]) => (
 							<div key={letter} className="pattern-col">
 								<div className="pattern-letter">{letter}</div>
-								{_.map(column, (slot, index) => (
+								{column.map((slot, index) => (
 									<div
 										key={letter + index}
 										className={slot ? 'selected pattern-slot' : 'pattern-slot'}

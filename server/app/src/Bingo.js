@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import _ from 'underscore'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import Cards from './components/Cards.js'
 import BingoBoard from './components/BingoBoard.js'
@@ -7,11 +6,7 @@ import Pattern from './components/Pattern.js'
 import BallDisplay from './components/BallDisplay.js'
 
 class Bingo extends Component {
-	/*
-	 * Constructor
-	 * State Variables
-	 * balls: balls object, holds letter, number, called and active statues
-	 */
+
 	constructor(props) {
 		super(props)
 		this.state = {
@@ -101,11 +96,10 @@ class Bingo extends Component {
 	 *  active and called statuses to false
 	 */
 	resetGame = () => {
-		let resetBalls = this.state.balls
-		_.map(resetBalls, (ball, index) => {
-			resetBalls[index].active = false
-			resetBalls[index].called = false
-		})
+		let resetBalls = Object.entries(this.state.balls).reduce((reduced, [key, value]) => {
+			reduced[key] = { letter: value.letter, number: value.number, called: false, active: false }
+			return reduced
+		}, {})
 		this.setState({ balls: resetBalls })
 	}
 
@@ -118,13 +112,16 @@ class Bingo extends Component {
 	callNumber = () => {
 		// get all balls
 		let balls = this.state.balls
-		// get active bll and reset
-		let active = _.where(balls, { active: true })
+
+		// get active balls and reset
+		let active = Object.values(balls).filter((ball) => ball.active)
 		active.forEach((ball) => {
 			ball.active = false
 		})
+
 		// get all uncalled balls
-		let uncalled = _.where(balls, { called: false })
+		let uncalled = Object.values(balls).filter((ball) => !ball.called)
+
 		if (uncalled.length === 0) {
 			alert('All numbers called!')
 		} else {

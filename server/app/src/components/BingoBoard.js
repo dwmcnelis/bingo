@@ -1,25 +1,24 @@
 import React from 'react'
-import _ from 'underscore'
 
 class BingoBoard extends React.Component {
 	render() {
-		let balls = this.props.balls
+		let balls = Object.values(this.props.balls)
 		let rows = {
-			B: _.where(balls, { letter: 'B' }),
-			I: _.where(balls, { letter: 'I' }),
-			N: _.where(balls, { letter: 'N' }),
-			G: _.where(balls, { letter: 'G' }),
-			O: _.where(balls, { letter: 'O' })
+			B: balls.filter((ball) => ball.letter === 'B'),
+			I: balls.filter((ball) => ball.letter === 'I'),
+			N: balls.filter((ball) => ball.letter === 'N'),
+			G: balls.filter((ball) => ball.letter === 'G'),
+			O: balls.filter((ball) => ball.letter === 'O')
 		}
 
 		return (
-			<div className="board notranslate">
-				{_.map(rows, (row, letter) => (
+			<div className="board">
+				{Object.values(rows).map((row, letter) => (
 					<div key={'row' + letter} className="board-row">
 						<div key={letter} className="letter">
 							{letter}
 						</div>
-						{_.map(row, (ball) => (
+						{Object.values(row).map((ball) => (
 							<div
 								key={ball.letter + ball.number}
 								className={

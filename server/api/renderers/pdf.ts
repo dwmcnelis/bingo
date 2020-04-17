@@ -1,6 +1,53 @@
 import * as PDFDocument from 'pdfkit'
 import * as path from 'path'
 import * as appRootDir from 'app-root-dir'
+import { logger } from '../../lib'
+
+interface LayoutOptions {
+	per?: number
+	pageLayout?: string
+	pageWidth?: number
+	pageHeight?: number
+	marginTop?: number
+	marginBottom?: number
+	marginLeft?: number
+	marginRight?: number
+	marginCard?: number
+	cardWidth?: number
+	cardHeight?: number
+	titleFontSize?: number
+	headerFontSize?: number
+	cellFontSize?: number
+	footerFontSize?: number
+}
+
+interface ThemeOptions {
+	customFonts?: any
+	marksStrokeColor?: string
+	cardStrokeColor?: string
+	titleFontFamily?: string
+	titlePadding?: number
+	titleStrokeColor?: string
+	titleFillColor?: string
+	headerFontFamily?: string
+	headerPadding?: number
+	headerStrokeColor?: string
+	headerFillColor?: string
+	headerBorderColor?: string
+	cellFontFamily?: string
+	cellStrokeColor?: string
+	cellFillColor?: string
+	cellBorderColor?: string
+	footerFontFamily?: string
+	footerPadding?: number
+	footerStrokeColor?: string
+	footerFillColor?: string
+}
+
+interface MarksOptions {
+	outline?: boolean
+	cards?: boolean
+}
 
 interface TableOptions {
 	x?: number
@@ -15,263 +62,556 @@ interface TableOptions {
 	onRow?: (row: string[], i: number) => any
 }
 
-const card = (pdf, options: TableOptions) => {
-	let { x, y, headers, rows, width, height, columnSpacing, rowSpacing, onHeader, onRow } = options
-	x = x || pdf.x
-	y = y || pdf.y
-	headers = headers || ['B', 'I', 'N', 'G', 'O']
-	columnSpacing = columnSpacing || 15
-	rowSpacing = rowSpacing || 5
-	width = width || pdf.page.width - pdf.page.margins.left - pdf.page.margins.right
-	height = height || 7 * (pdf.heightOfString('X') + rowSpacing)
-	onHeader = onHeader || (() => { })
-	onRow = onRow || ((row: string[], i: number) => { })
-	const headerColor = '#666666'
+const points = 72
+const eightHalf = 8.5 * points
+const eleven = 11.0 * points
 
-	let startX = x
-	let startY = y
-	let rowHeight = pdf.heightOfString('')
 
-	const columns = headers.length
+const themes = {
+	default: {
+		customFonts: {
+			'OpenSans-Light': path.join(appRootDir.get(), 'fonts/OpenSans-Light.ttf'),
+			'OpenSans-Regular': path.join(appRootDir.get(), 'fonts/OpenSans-Regular.ttf'),
+			'OpenSans-Bold': path.join(appRootDir.get(), 'fonts/OpenSans-Bold.ttf'),
+			'Roboto-Thin': path.join(appRootDir.get(), 'fonts/Roboto-Thin.ttf'),
+			'Roboto-Light': path.join(appRootDir.get(), 'fonts/Roboto-Light.ttf'),
+			'Roboto-Regular': path.join(appRootDir.get(), 'fonts/Roboto-Regular.ttf'),
+			'Roboto-Bold': path.join(appRootDir.get(), 'fonts/Roboto-Bold.ttf')
+		},
+		marksStrokeColor: '#dddddd',
+		cardStrokeColor: '#666666',
+		titleFontFamily: 'OpenSans-Regular',
+		titlePadding: 4,
+		titleStrokeColor: 'black',
+		titleFillColor: '#efefef',
+		headerFontFamily: 'Roboto-Bold',
+		headerPadding: 4,
+		headerStrokeColor: 'white',
+		headerFillColor: '#666666',
+		headerBorderColor: '#666666',
+		cellFontFamily: 'Roboto-Light',
+		cellStrokeColor: 'black',
+		cellFillColor: 'none',
+		cellBorderColor: '#666666',
+		footerFontFamily: 'Roboto-Regular',
+		footerPadding: 2,
+		footerStrokeColor: 'black',
+		footerFillColor: '#efefef'
+	}
+}
 
-	const computeRowHeight = (row) => {
-		let result = 0
+const layouts = {
+	1: {
+		per: 1,
+		pageLayout: 'landscape',
+		pageWidth: eleven,
+		pageHeight: eightHalf,
+		marginTop: 0.5 * points,
+		marginBottom: 0.5 * points,
+		marginLeft: 0.5 * points,
+		marginRight: 0.5 * points,
+		marginCard: 0.5 * points,
+		cardWidth: eleven - (0.5 * points + 0.5 * points),
+		cardHeight: eightHalf - (0.5 * points + 0.5 * points),
+		titleFontSize: 42,
+		headerFontSize: 48,
+		cellFontSize: 48,
+		footerFontSize: 22
+	},
+	2: {
+		per: 2,
+		pageLayout: 'portrait',
+		pageWidth: eightHalf,
+		pageHeight: eleven,
+		marginTop: 0.5 * points,
+		marginBottom: 0.5 * points,
+		marginLeft: 0.5 * points,
+		marginRight: 0.5 * points,
+		marginCard: 0.5 * points,
+		cardWidth: eightHalf - (0.5 * points + 0.5 * points),
+		cardHeight: (eleven - (0.5 * points + 0.5 * points + 0.5 * points)) / 2.0,
+		titleFontSize: 26,
+		headerFontSize: 32,
+		cellFontSize: 32,
+		footerFontSize: 16
+	},
+	4: {
+		per: 4,
+		pageLayout: 'landscape',
+		pageWidth: eleven,
+		pageHeight: eightHalf,
+		marginTop: 0.5 * points,
+		marginBottom: 0.5 * points,
+		marginLeft: 0.5 * points,
+		marginRight: 0.5 * points,
+		marginCard: 0.5 * points,
+		cardWidth: (eleven - (0.5 * points + 0.5 * points + 0.5 * points)) / 2.0,
+		cardHeight: (eightHalf - (0.5 * points + 0.5 * points + 0.5 * points)) / 2.0,
+		titleFontSize: 18,
+		headerFontSize: 20,
+		cellFontSize: 20,
+		footerFontSize: 14
+	},
+	6: {
+		per: 6,
+		pageLayout: 'portrait',
+		pageWidth: eightHalf,
+		pageHeight: eleven,
+		marginTop: 0.5 * points,
+		marginBottom: 0.5 * points,
+		marginLeft: 0.5 * points,
+		marginRight: 0.5 * points,
+		marginCard: 0.5 * points,
+		cardWidth: (eightHalf - (0.5 * points + 0.5 * points + 0.5 * points)) / 2.0,
+		cardHeight: (eleven - (0.5 * points + 0.5 * points + 0.5 * points + 0.5 * points)) / 3.0,
+		titleFontSize: 18,
+		headerFontSize: 16,
+		cellFontSize: 16,
+		footerFontSize: 12
+	}
+}
 
-		row.forEach((cell) => {
-			const cellHeight = pdf.heightOfString(cell, {
-				width: columnWidth,
-				align: 'center'
-			})
-			result = Math.max(result, cellHeight)
-		})
 
-		return result + rowSpacing
+const fonts = (pdf, fonts) => {
+	Object.entries(fonts).forEach(([name, path]) => {
+		pdf.registerFont(name, path)
+	})
+}
+
+const marks = (pdf, options: MarksOptions, layout: LayoutOptions, theme: ThemeOptions) => {
+	let { outline, cards } = options
+	let { per, pageLayout, pageWidth, pageHeight, marginTop, marginBottom, marginLeft, marginRight, marginCard, cardWidth, cardHeight, titleFontSize, headerFontSize, cellFontSize, footerFontSize } = layout
+	let { marksStrokeColor, titleFontFamily, titlePadding, titleStrokeColor, headerFontFamily, headerPadding, headerStrokeColor, headerFillColor, headerBorderColor, cellFontFamily, cellStrokeColor, cellFillColor, cellBorderColor, footerFontFamily, footerPadding, footerStrokeColor } = theme
+	let extra = 12
+
+	pdf.font(theme.titleFontFamily).fontSize(titleFontSize)
+	const titleHeight = pdf.heightOfString('A') + 2 * titlePadding + 2
+	pdf.font(theme.headerFontFamily).fontSize(headerFontSize)
+	let headerHeight = pdf.heightOfString('A') + 2 * headerPadding + 2
+	pdf.font(theme.cellFontFamily).fontSize(cellFontSize)
+	const cellHeight = pdf.heightOfString('A')
+	pdf.font(theme.footerFontFamily).fontSize(footerFontSize)
+	const footerHeight = pdf.heightOfString('A') + 2 * footerPadding + 2
+	const contentHeight = cardHeight - titleHeight - footerHeight
+
+	if (outline) {
+		// top
+		pdf
+			.moveTo(marginLeft - extra, marginTop)
+			.lineTo(pageWidth - marginRight + extra, marginTop)
+			.lineWidth(1)
+			.dash(2, { space: 4 })
+			.stroke(marksStrokeColor)
+			.undash()
+
+		// right
+		pdf
+			.moveTo(pageWidth - marginRight, marginTop - extra)
+			.lineTo(pageWidth - marginRight, pageHeight - marginBottom + extra)
+			.lineWidth(1)
+			.dash(2, { space: 4 })
+			.stroke(marksStrokeColor)
+			.undash()
+
+		// bottom
+		pdf
+			.moveTo(pageWidth - marginRight + extra, pageHeight - marginBottom)
+			.lineTo(marginLeft - extra, pageHeight - marginBottom)
+			.lineWidth(1)
+			.dash(2, { space: 4 })
+			.stroke(marksStrokeColor)
+			.undash()
+
+		// left
+		pdf
+			.moveTo(marginLeft, pageHeight - marginBottom + extra)
+			.lineTo(marginLeft, marginTop - extra)
+			.lineWidth(1)
+			.dash(2, { space: 4 })
+			.stroke(marksStrokeColor)
+
+		// center
+		pdf
+			.moveTo(pageWidth / 2.0, marginTop - extra)
+			.lineTo(pageWidth / 2.0, pageHeight - marginBottom + extra)
+			.lineWidth(1)
+			.dash(2, { space: 4 })
+			.stroke(marksStrokeColor)
+			.undash()
+
+		// middle
+		pdf
+			.moveTo(marginLeft - extra, pageHeight / 2.0)
+			.lineTo(pageWidth - marginRight + extra, pageHeight / 2.0)
+			.lineWidth(1)
+			.dash(2, { space: 4 })
+			.stroke(marksStrokeColor)
+			.undash()
 	}
 
-	const containerWidth = width / columns
-	const columnWidth = containerWidth - columnSpacing
-	const maxY = pdf.page.height - pdf.page.margins.bottom
+	if (cards) {
+		// cards
+		for (let i = 0; i < per; i++) {
+			let xm, ym
+			if (per === 1) {
+				xm = 0
+				ym = 0
+			} else if (per === 2) {
+				xm = 0
+				ym = i
+			} else if (per === 4) {
+				xm = (i % 2)
+				ym = (Math.floor(i / 2) % 2)
+			} else if (per === 6) {
+				xm = (i % 2)
+				ym = (Math.floor(i / 2) % 3)
+			}
+			const x1 = marginLeft + xm * cardWidth + xm * marginCard
+			const y1 = marginTop + ym * cardHeight + ym * marginCard
+			const x2 = x1 + cardWidth
+			const y2 = y1 + cardHeight
 
-	let rowBottomY = 0
+			let columnWidth = cardWidth / 5
 
-	pdf.on('pageAdded', () => {
-		startY = pdf.page.margins.top
-		rowBottomY = 0
-	})
+			let cellHeight = (cardHeight - titleHeight - footerHeight) / 6
+			headerHeight = cellHeight
 
-	onHeader()
-
-	// Check to have enough room for header and first rows
-	if (startY + 3 * computeRowHeight(headers) > maxY) pdf.addPage()
-
-	// Outline card
-	//let rowHeight = computeRowHeight(headers)
-	pdf
-		.rect(startX, startY, 5 * (columnWidth + columnSpacing), height)
-		.stroke(headerColor)
-
-
-	// Print header background
-	rowHeight = computeRowHeight(headers)
-	pdf
-		.rect(startX, startY, 5 * (columnWidth + columnSpacing), rowHeight + rowSpacing)
-		.fill(headerColor)
-
-	// Print header tiles
-	headers.forEach((header, i) => {
-		pdf
-			.fillColor('white')
-			.text(header, startX + i * containerWidth + columnSpacing / 2, startY + 3 / 2 * rowSpacing, {
-				width: columnWidth,
-				align: 'center'
-			})
-			.fillColor('black')
-	})
-
-	// Print column lines
-	headers.forEach((header, i) => {
-		pdf
-			.moveTo(startX + i * containerWidth, startY)
-			.lineTo(startX + i * containerWidth, startY + height)
-			.stroke(headerColor)
-	})
-
-	rows.forEach((row, i) => {
-		pdf
-			.moveTo(startX, startY + (i + 1) * (rowHeight + rowSpacing))
-			.lineTo(startX + 5 * containerWidth, startY + (i + 1) * (rowHeight + rowSpacing))
-			.stroke(headerColor)
-	})
-
-	// Refresh the y coordinate of the bottom of the headers row
-	rowBottomY = Math.max(startY + computeRowHeight(headers), rowBottomY)
-
-	// Separation line between headers and rows
-	// pdf
-	// 	.moveTo(startX, rowBottomY - rowSpacing * 0.5)
-	// 	.lineTo(startX + width, rowBottomY - rowSpacing * 0.5)
-	// 	.lineWidth(2)
-	// 	.stroke()
-
-	rows.forEach((row, i) => {
-		let rowHeight = computeRowHeight(row)
-
-		// Switch to next page if we cannot go any further because the space is over.
-		// For safety, consider 3 rows margin instead of just one
-		if (startY + 3 * rowHeight < maxY) startY = rowBottomY + rowSpacing
-		else pdf.addPage()
-
-		// Allow the user to override style for rows
-		onRow(row, i)
-
-		// Print all cells of the current row
-		row.forEach((cell, i) => {
+			// Card outline
 			pdf
-				// .rect(startX + i * containerWidth, startY, columnWidth, rowHeight)
-				// .fill('black')
-				.text(cell, startX + i * containerWidth + columnSpacing / 2, startY + 3 / 2 * rowSpacing, {
-					width: columnWidth,
-					align: 'center'
-				})
-		})
+				.moveTo(x1, y1)
+				.lineTo(x2, y1)
+				.lineTo(x2, y2)
+				.lineTo(x1, y2)
+				.lineTo(x1, y1)
+				.lineWidth(1)
+				.dash(2, { space: 4 })
+				.stroke(marksStrokeColor)
+				.undash()
 
-		// Refresh the y coordinate of the bottom of this row
-		rowBottomY = Math.max(startY + rowHeight, rowBottomY)
+			// Title bottom
+			pdf
+				.moveTo(x1, y1 + titleHeight)
+				.lineTo(x2, y1 + titleHeight)
+				.dash(2, { space: 4 })
+				.stroke(marksStrokeColor)
+				.undash()
 
-		// // Separation line between rows
-		// pdf
-		// 	.moveTo(startX, rowBottomY - rowSpacing * 0.5)
-		// 	.lineTo(startX + width, rowBottomY - rowSpacing * 0.5)
-		// 	.lineWidth(1)
-		// 	.opacity(0.7)
-		// 	.stroke()
-		// 	.opacity(1) // Reset opacity after drawing the line
+			// Header bottom
+			pdf
+				.moveTo(x1, y1 + titleHeight + headerHeight)
+				.lineTo(x2, y1 + titleHeight + headerHeight)
+				.dash(2, { space: 4 })
+				.stroke(marksStrokeColor)
+				.undash()
+
+			// Footer top
+			pdf
+				.moveTo(x1, y2 - footerHeight)
+				.lineTo(x2, y2 - footerHeight)
+				.dash(2, { space: 4 })
+				.stroke(marksStrokeColor)
+				.undash()
+
+			// Header verticals
+			for (let j = 1; j < 5; j++) {
+				pdf
+					.moveTo(x1 + j * columnWidth, y1 + titleHeight)
+					.lineTo(x1 + j * columnWidth, y1 + titleHeight + headerHeight)
+					.dash(2, { space: 4 })
+					.stroke(marksStrokeColor)
+					.undash()
+			}
+
+			// Cell horizontals
+			for (let j = 1; j < 5; j++) {
+				pdf
+					.moveTo(x1, y1 + titleHeight + headerHeight + j * cellHeight)
+					.lineTo(x2, y1 + titleHeight + headerHeight + j * cellHeight)
+					.dash(2, { space: 4 })
+					.stroke(marksStrokeColor)
+					.undash()
+			}
+
+			// Cell verticals
+			for (let j = 1; j < 5; j++) {
+				pdf
+					.moveTo(x1 + j * columnWidth, y1 + titleHeight + headerHeight)
+					.lineTo(x1 + j * columnWidth, y2 - footerHeight)
+					.dash(2, { space: 4 })
+					.stroke(marksStrokeColor)
+					.undash()
+			}
+
+			const bingo = ['B', 'I', 'N', 'G', 'O']
+
+			// Header labels
+			pdf
+				.font(headerFontFamily)
+				.fontSize(headerFontSize)
+
+			for (let j = 0; j < 5; j++) {
+				let label = bingo[j], x = x1 + j * columnWidth, y = y1 + titleHeight, h = headerHeight, w = columnWidth
+				let options = { width: w, align: 'center' }
+				pdf
+					.rect(x, y, w, h).fill(headerFillColor)
+					.fillColor(headerStrokeColor)
+					.text(label, x, y + 0.5 * (h - pdf.heightOfString(label, options)), options)
+			}
+
+			// Cell labels
+			pdf
+				.font(cellFontFamily)
+				.fontSize(cellFontSize)
+			let fontHeight = pdf.heightOfString('X')
+			let offset = 0.5 * (cellHeight - fontHeight)
+
+			for (let j = 0; j < 5; j++) {
+				let yr = y1 + titleHeight + headerHeight + j * cellHeight
+				for (let k = 0; k < 5; k++) {
+					let label = `${bingo[k]}${j + 1}`, x = x1 + k * columnWidth, y = yr, h = cellHeight, w = columnWidth
+					let options = { width: w, align: 'center' }
+					pdf
+						.rect(x, y, w, h)
+						.fill(cellFillColor)
+						.fillColor(cellStrokeColor)
+						.text(label, x, y + offset, options)
+				}
+			}
+		}
+
+	}
+}
+
+const cards = (pdf, games, per, groups, layout: LayoutOptions, theme: ThemeOptions) => {
+	let { pageLayout, pageWidth, pageHeight, marginTop, marginBottom, marginLeft, marginRight, marginCard, cardWidth, cardHeight, titleFontSize, headerFontSize, cellFontSize, footerFontSize } = layout
+	let { cardStrokeColor, titleFontFamily, titlePadding, titleStrokeColor, titleFillColor, headerFontFamily, headerPadding, headerStrokeColor, headerFillColor, headerBorderColor, cellFontFamily, cellStrokeColor, cellFillColor, cellBorderColor, footerFontFamily, footerPadding, footerStrokeColor, footerFillColor } = theme
+
+	pdf.font(theme.titleFontFamily).fontSize(titleFontSize)
+	const titleHeight = pdf.heightOfString('A') + 2 * titlePadding + 2
+	pdf.font(theme.headerFontFamily).fontSize(headerFontSize)
+	let headerHeight = pdf.heightOfString('A') + 2 * headerPadding + 2
+	pdf.font(theme.cellFontFamily).fontSize(cellFontSize)
+	const cellHeight = pdf.heightOfString('A')
+	pdf.font(theme.footerFontFamily).fontSize(footerFontSize)
+	const footerHeight = pdf.heightOfString('A') + 2 * footerPadding + 2
+	const contentHeight = cardHeight - titleHeight - footerHeight
+
+	groups.forEach((group, igroup) => {
+
+		const { name, players, total, cards } = group
+
+		let ipage = 0
+		for (let iplayer = 0; iplayer < players; iplayer += 1) {
+
+			ipage = 1
+			for (let igame = 0; igame < games; igame++) {
+
+				const icard = iplayer * games + igame
+
+				const card = cards[icard]
+
+				const slot = igame % per
+
+				let xm, ym
+				if (per === 1) {
+					xm = 0
+					ym = 0
+				} else if (per === 2) {
+					xm = 0
+					ym = slot
+				} else if (per === 4) {
+					xm = (slot % 2)
+					ym = (Math.floor(slot / 2) % 2)
+				} else if (per === 6) {
+					xm = (slot % 2)
+					ym = (Math.floor(slot / 2) % 3)
+				}
+				const x1 = marginLeft + xm * cardWidth + xm * marginCard
+				const y1 = marginTop + ym * cardHeight + ym * marginCard
+				const x2 = x1 + cardWidth
+				const y2 = y1 + cardHeight
+
+				let columnWidth = cardWidth / 5
+
+				let cellHeight = (cardHeight - titleHeight - footerHeight) / 6
+				headerHeight = cellHeight
+
+				// Card outline
+				pdf
+					.moveTo(x1, y1)
+					.lineTo(x2, y1)
+					.lineTo(x2, y2)
+					.lineTo(x1, y2)
+					.lineTo(x1, y1)
+					.lineWidth(1)
+					.stroke(cardStrokeColor)
+
+				// Title bottom
+				pdf
+					.moveTo(x1, y1 + titleHeight)
+					.lineTo(x2, y1 + titleHeight)
+					.stroke(cardStrokeColor)
+
+				// Header bottom
+				pdf
+					.moveTo(x1, y1 + titleHeight + headerHeight)
+					.lineTo(x2, y1 + titleHeight + headerHeight)
+					.stroke(cardStrokeColor)
+
+				// Footer top
+				pdf
+					.moveTo(x1, y2 - footerHeight)
+					.lineTo(x2, y2 - footerHeight)
+					.stroke(cardStrokeColor)
+
+				// Header verticals
+				for (let j = 1; j < 5; j++) {
+					pdf
+						.moveTo(x1 + j * columnWidth, y1 + titleHeight)
+						.lineTo(x1 + j * columnWidth, y1 + titleHeight + headerHeight)
+						.stroke(headerBorderColor)
+				}
+
+				// Cell horizontals
+				for (let j = 1; j < 5; j++) {
+					pdf
+						.moveTo(x1, y1 + titleHeight + headerHeight + j * cellHeight)
+						.lineTo(x2, y1 + titleHeight + headerHeight + j * cellHeight)
+						.stroke(cardStrokeColor)
+				}
+
+				// Cell verticals
+				for (let j = 1; j < 5; j++) {
+					pdf
+						.moveTo(x1 + j * columnWidth, y1 + titleHeight + headerHeight)
+						.lineTo(x1 + j * columnWidth, y2 - footerHeight)
+						.stroke(cardStrokeColor)
+				}
+
+				// Title
+				let label = card.title, x = x1 + 1, y = y1 + 1, h = titleHeight - 2, w = cardWidth - 2
+				let options = { width: w, align: 'center' }
+				if (titleFillColor !== 'none') {
+					pdf
+						.rect(x, y, w, h)
+						.fill(titleFillColor)
+				}
+				pdf
+					.font(titleFontFamily).fontSize(titleFontSize)
+					.fillColor(titleStrokeColor)
+					.text(label, x, y + 0.5 * (h - pdf.heightOfString(label, options)), options)
+
+				// Footer
+				label = `${group.name} Player${iplayer + 1} - Game${igame + 1}`, x = x1 + 1, y = y2 + 1 - footerHeight, h = footerHeight - 2, w = cardWidth - 2
+				options = { width: w, align: 'center' }
+				if (footerFillColor !== 'none') {
+					pdf
+						.rect(x, y, w, h)
+						.fill(footerFillColor)
+				}
+				pdf
+					.font(footerFontFamily).fontSize(footerFontSize)
+					.fillColor(footerStrokeColor)
+					.text(label, x, y + 0.5 * (h - pdf.heightOfString(label, options)), options)
+
+				// const bingo = ['B', 'I', 'N', 'G', 'O']
+				const bingo = Object.keys(card).filter((key) => key !== 'title')
+
+				// Header labels
+				pdf
+					.font(headerFontFamily)
+					.fontSize(headerFontSize)
+
+				for (let j = 0; j < 5; j++) {
+					let label = bingo[j], x = x1 + 1 + j * columnWidth, y = y1 + 1 + titleHeight, h = headerHeight - 2, w = columnWidth - 2
+					let options = { width: w, align: 'center' }
+
+					if (headerFillColor !== 'none') {
+						pdf
+							.rect(x, y, w, h)
+							.fill(headerFillColor)
+							.fillColor(headerBorderColor)
+							.stroke(headerBorderColor)
+					}
+					pdf
+						.fillColor(headerStrokeColor)
+						.text(label, x, y + 0.5 * (h - pdf.heightOfString(label, options)), options)
+
+				}
+
+				// Cell labels
+				pdf
+					.font(cellFontFamily)
+					.fontSize(cellFontSize)
+				let fontHeight = pdf.heightOfString('X')
+				let offset = 0.5 * (cellHeight - fontHeight)
+
+				for (let j = 0; j < 5; j++) {
+					let yr = y1 + 1 + titleHeight + headerHeight + j * cellHeight, h = cellHeight - 2, w = columnWidth - 2
+					for (let k = 0; k < 5; k++) {
+						let label = card[bingo[k]][j], x = x1 + 1 + k * columnWidth, y = yr
+						let options = { width: w, align: 'center' }
+						if (cellFillColor !== 'none') {
+							pdf
+								.rect(x, y, w, h)
+								.fill(cellFillColor)
+						}
+						pdf
+							.fillColor(cellStrokeColor)
+							.text(label, x, y + offset, options)
+					}
+				}
+
+				if (slot === (per - 1) && igame < (games - 1)) {
+					pdf.addPage()
+					ipage = ipage + 1
+				}
+
+			}
+
+			if (group.doublesided && (ipage % 2) > 0) {
+				pdf.addPage()
+			}
+
+			if (iplayer < (players - 1)) {
+				pdf.addPage()
+			}
+
+		}
+
+		if (igroup < (groups.length - 1)) {
+			pdf.addPage()
+		}
+
 	})
 
-	pdf.x = startX
-	pdf.moveDown()
 }
 
 const pdf = {
 	render: (data) => {
+		// logger.debug(`render pdf: data: ${JSON.stringify(data)}`)
+		let { games, per, groups }: any = data
+		games = games || 1
+		per = per || 1
+		groups = groups || [{}]
+		let layout = layouts[per]
+		let theme = themes.default
+
 		let pdf = new PDFDocument({
-			layout: 'landscape'
-		})
-		pdf.font('Helvetica-Bold').fontSize(18)
-		// pdf.font('Helvetica') // establishes the default font for forms
-		// pdf.initForm()
-
-		// let rootField = pdf.formField('rootField')
-		// pdf.font('Courier')
-		// let child1Field = pdf.formField('child1Field', { parent: rootField })
-		// pdf.font('Helvetica')
-		// let child2Field = pdf.formField('child2Field', { parent: rootField })
-
-		// let y = 10
-		// pdf.formCheckbox('check', 10, y, 10, 10, {
-		// 	parent: child1Field,
-		// 	value: '1',
-		// 	align: 'center'
-		// })
-
-		// pdf
-		// 	.font(path.join(appRootDir.get(), 'fonts/Viga-Regular.ttf'))
-		// 	.fontSize(25)
-		// 	.text('B  I  N  G  O', 100, 100)
-		// 	.text('12 21 33 47 68', 100, 120)
-
-		data.forEach((file, i) => {
-			file.forEach((page, j) => {
-				let per = page[0]
-				card(pdf, {
-					x: 36,
-					y: 54,
-					width: 324,
-					headers: ['B', 'I', 'N', 'G', 'O'],
-					rows: [
-						[per.B[0], per.I[0], per.N[0], per.G[0], per.O[0]],
-						[per.B[1], per.I[1], per.N[1], per.G[1], per.O[1]],
-						[per.B[2], per.I[2], per.N[2], per.G[2], per.O[2]],
-						[per.B[3], per.I[3], per.N[3], per.G[3], per.O[3]],
-						[per.B[4], per.I[4], per.N[4], per.G[4], per.O[4]]
-					],
-					//width,
-					//columnSpacing,
-					//rowSpacing,
-					onHeader: () => pdf.font('Helvetica-Bold').fontSize(18),
-					onRow: () => pdf.font('Helvetica').fontSize(18)
-				})
-
-				per = page[1]
-
-				card(pdf, {
-					x: 396 + 36,
-					y: 54,
-					width: 324,
-					headers: ['B', 'I', 'N', 'G', 'O'],
-					rows: [
-						[per.B[0], per.I[0], per.N[0], per.G[0], per.O[0]],
-						[per.B[1], per.I[1], per.N[1], per.G[1], per.O[1]],
-						[per.B[2], per.I[2], per.N[2], per.G[2], per.O[2]],
-						[per.B[3], per.I[3], per.N[3], per.G[3], per.O[3]],
-						[per.B[4], per.I[4], per.N[4], per.G[4], per.O[4]]
-					],
-					//width,
-					//columnSpacing,
-					//rowSpacing,
-					onHeader: () => pdf.font('Helvetica-Bold').fontSize(18),
-					onRow: () => pdf.font('Helvetica').fontSize(18)
-				})
-
-				per = page[2]
-
-				card(pdf, {
-					x: 36,
-					y: 306 + 54 - 40,
-					width: 324,
-					headers: ['B', 'I', 'N', 'G', 'O'],
-					rows: [
-						[per.B[0], per.I[0], per.N[0], per.G[0], per.O[0]],
-						[per.B[1], per.I[1], per.N[1], per.G[1], per.O[1]],
-						[per.B[2], per.I[2], per.N[2], per.G[2], per.O[2]],
-						[per.B[3], per.I[3], per.N[3], per.G[3], per.O[3]],
-						[per.B[4], per.I[4], per.N[4], per.G[4], per.O[4]]
-					],
-					//width,
-					//columnSpacing,
-					//rowSpacing,
-					onHeader: () => pdf.font('Helvetica-Bold').fontSize(18),
-					onRow: () => pdf.font('Helvetica').fontSize(18)
-				})
-
-				per = page[3]
-
-				card(pdf, {
-					x: 396 + 36,
-					y: 306 + 54 - 40,
-					width: 324,
-					headers: ['B', 'I', 'N', 'G', 'O'],
-					rows: [
-						[per.B[0], per.I[0], per.N[0], per.G[0], per.O[0]],
-						[per.B[1], per.I[1], per.N[1], per.G[1], per.O[1]],
-						[per.B[2], per.I[2], per.N[2], per.G[2], per.O[2]],
-						[per.B[3], per.I[3], per.N[3], per.G[3], per.O[3]],
-						[per.B[4], per.I[4], per.N[4], per.G[4], per.O[4]]
-					],
-					//width,
-					//columnSpacing,
-					//rowSpacing,
-					onHeader: () => pdf.font('Helvetica-Bold').fontSize(18),
-					onRow: () => pdf.font('Helvetica').fontSize(18)
-				})
-				if (file.length > 1 && j <= page.length) {
-					pdf.addPage()
-				}
-			})
-			if (data.length > 1 && i < file.length) {
-				pdf.addPage()
+			layout: layout.pageLayout,
+			margins: {
+				top: layout.marginTop,
+				bottom: layout.marginBottom,
+				left: layout.marginLeft,
+				right: layout.marginRight
 			}
 		})
+
+		fonts(pdf, theme.customFonts)
+
+		// marks(pdf, { cards: true }, layout, theme)
+
+		cards(pdf, games, per, groups, layout, theme)
 
 		pdf.end()
 
