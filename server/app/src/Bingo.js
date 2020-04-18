@@ -163,6 +163,8 @@ class Bingo extends Component {
 					</TabPanel>
 
 					<TabPanel>
+						<section className="separator">
+						</section>
 						<section id="board">
 							<div className="row flex">
 								<div className="col c15 ballcol">
