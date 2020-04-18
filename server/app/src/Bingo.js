@@ -6,7 +6,6 @@ import Pattern from './components/Pattern.js'
 import BallDisplay from './components/BallDisplay.js'
 
 class Bingo extends Component {
-
 	constructor(props) {
 		super(props)
 		this.state = {
@@ -147,7 +146,6 @@ class Bingo extends Component {
 					<div className="row"></div>
 				</header>
 				<Tabs>
-
 					<TabList>
 						<Tab>Cards</Tab>
 						<Tab>Pattern</Tab>
@@ -161,9 +159,7 @@ class Bingo extends Component {
 					</TabPanel>
 
 					<TabPanel>
-						<section className="padding">
-							<Pattern />
-						</section>
+						<Pattern />
 					</TabPanel>
 
 					<TabPanel>
@@ -181,9 +177,7 @@ class Bingo extends Component {
 						<section id="buttons">
 							<div className="row">
 								<div className="col c40">
-									<button onClick={this.callNumber}>
-										Next
-									</button>
+									<button onClick={this.callNumber}>Next</button>
 								</div>
 								<div className="col c60 text-right">
 									<button onClick={this.resetGame}>Reset</button>
@@ -192,7 +186,7 @@ class Bingo extends Component {
 						</section>
 					</TabPanel>
 				</Tabs>
-			</div >
+			</div>
 		)
 	}
 }

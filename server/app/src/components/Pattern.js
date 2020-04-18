@@ -1,7 +1,6 @@
 import React from 'react'
 
 class Menu extends React.Component {
-
 	constructor(props) {
 		super(props)
 		this.state = {
@@ -21,18 +20,23 @@ class Menu extends React.Component {
 
 		let list = this.props.options.map(function (m, index) {
 			const className = self.state.selected === index ? 'selected' : ''
-			return <li className={'menuitem ' + className} key={index} onClick={self.handleClick.bind(self, m, index)} data={m.value}>{m.label}</li>
+			return (
+				<li
+					className={'menuitem ' + className}
+					key={index}
+					onClick={self.handleClick.bind(self, m, index)}
+					data={m.value}
+				>
+					{m.label}
+				</li>
+			)
 		})
 
-		return (
-			<ul className={'menu ' + this.props.className}>{list}</ul>
-		)
+		return <ul className={'menu ' + this.props.className}>{list}</ul>
 	}
-
 }
 
 class Pattern extends React.Component {
-
 	constructor(props) {
 		super(props)
 		this.state = {
@@ -48,7 +52,7 @@ class Pattern extends React.Component {
 				O: [false, false, false, false, false]
 			},
 			presets: {
-				'Regular': [
+				Regular: [
 					{
 						B: [true, true, true, true, true],
 						I: [false, false, false, false, false],
@@ -227,7 +231,7 @@ class Pattern extends React.Component {
 						O: [true, false, false, false, true]
 					}
 				],
-				'Horizontal': [
+				Horizontal: [
 					{
 						B: [true, false, false, false, false],
 						I: [true, false, false, false, false],
@@ -264,7 +268,7 @@ class Pattern extends React.Component {
 						O: [false, false, false, false, true]
 					}
 				],
-				'Vertical': [
+				Vertical: [
 					{
 						B: [true, true, true, true, true],
 						I: [false, false, false, false, false],
@@ -450,7 +454,7 @@ class Pattern extends React.Component {
 						O: [true, true, false, false, false]
 					}
 				],
-				'Checkers': [
+				Checkers: [
 					{
 						B: [true, false, true, false, true],
 						I: [false, true, false, true, false],
@@ -477,7 +481,7 @@ class Pattern extends React.Component {
 						O: [false, false, false, false, true]
 					}
 				],
-				'Cactus': [
+				Cactus: [
 					{
 						B: [true, true, true, false, false],
 						I: [false, false, true, false, false],
@@ -513,7 +517,7 @@ class Pattern extends React.Component {
 						O: [false, false, true, false, false]
 					}
 				],
-				'Blackout': [
+				Blackout: [
 					{
 						B: [true, true, true, true, true],
 						I: [true, true, true, true, true],
@@ -522,7 +526,7 @@ class Pattern extends React.Component {
 						O: [true, true, true, true, true]
 					}
 				],
-				'Brackets': [
+				Brackets: [
 					{
 						B: [true, true, false, true, true],
 						I: [true, false, false, false, true],
@@ -750,7 +754,7 @@ class Pattern extends React.Component {
 						G: [false, false, false, false, false],
 						O: [false, false, false, false, false]
 					}
-				],
+				]
 				// 'Template': [
 				// 	{
 				// 		B: [false, false, false, false, false],
@@ -783,7 +787,7 @@ class Pattern extends React.Component {
 			let ways = pattern.length
 			var offset
 			if (selected === previous) {
-				offset = ((this.state.offset + 1) % ways)
+				offset = (this.state.offset + 1) % ways
 			} else {
 				offset = 0
 			}
@@ -824,33 +828,31 @@ class Pattern extends React.Component {
 		}, [])
 
 		return (
-			<div id="bingopattern" className="">
-				<div className="row ">
-					<div className="col c20 padding align-left">
-						<Menu
-							name="patternmenu"
-							className="patternmenu"
-							value={this.state.selected}
-							onChange={this.choosePattern}
-							options={patternArray}
-						/>
-					</div>
-					<div className="col c80 padding align-left">
-						{Object.entries(pattern).map(([letter, column]) => (
-							<div key={letter} className="pattern-col">
-								<div className="pattern-letter">{letter}</div>
-								{column.map((slot, index) => (
-									<div
-										key={letter + index}
-										className={slot ? 'selected pattern-slot' : 'pattern-slot'}
-										onClick={(e) => this.updatePattern(letter, index, slot)}
-									>
-										&nbsp;
-									</div>
-								))}
-							</div>
-						))}
-					</div>
+			<div className="row ">
+				<div className="col c20 padding align-left">
+					<Menu
+						name="patternmenu"
+						className="patternmenu"
+						value={this.state.selected}
+						onChange={this.choosePattern}
+						options={patternArray}
+					/>
+				</div>
+				<div className="col c80 padding align-left">
+					{Object.entries(pattern).map(([letter, column]) => (
+						<div key={letter} className="pattern-col">
+							<div className="pattern-letter">{letter}</div>
+							{column.map((slot, index) => (
+								<div
+									key={letter + index}
+									className={slot ? 'selected pattern-slot' : 'pattern-slot'}
+									onClick={(e) => this.updatePattern(letter, index, slot)}
+								>
+									&nbsp;
+								</div>
+							))}
+						</div>
+					))}
 				</div>
 			</div>
 		)
