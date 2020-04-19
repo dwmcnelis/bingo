@@ -17,6 +17,12 @@ body {
 	padding: 0;
 	margin: 0;
 	background: #f4f4f4;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
 a,
@@ -61,6 +67,16 @@ img {
 .no-margin {
 	margin: 0;
 }
+
+.no-select {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
 .medium-text {
 	font-size: 0.95rem;
 }
@@ -207,7 +223,7 @@ footer {
 		color: #b8cbf5;
 	}
 	50% {
-		color:#1f325c;
+		color: #1f325c;
 	}
 	100% {
 		color: #b8cbf5;
@@ -226,6 +242,8 @@ footer {
 
 .board-row {
 	display: block;
+	border-top: 1px solid #1f325c;
+	border-bottom: 1px solid #1f325c;
 }
 
 .letter,
@@ -245,7 +263,7 @@ footer {
 }
 
 .called.ball:not(.active) {
-	color:#1f325c;
+	color: #1f325c;
 }
 
 .active.ball {
@@ -653,7 +671,6 @@ input[type='range']::-webkit-slider-thumb {
 	-webkit-tap-highlight-color: transparent;
 	margin: 0;
 	padding: 0;
-
 }
 
 .react-tabs__tab-list {
