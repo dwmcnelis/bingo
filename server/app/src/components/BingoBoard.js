@@ -13,12 +13,12 @@ class BingoBoard extends React.Component {
 
 		return (
 			<div className="board">
-				{Object.values(rows).map((row, letter) => (
+				{Object.keys(rows).map((letter) => (
 					<div key={'row' + letter} className="board-row">
 						<div key={letter} className="letter">
 							{letter}
 						</div>
-						{Object.values(row).map((ball) => (
+						{Object.values(rows[letter]).map((ball) => (
 							<div
 								key={ball.letter + ball.number}
 								className={
