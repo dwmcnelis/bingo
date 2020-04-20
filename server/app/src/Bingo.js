@@ -88,7 +88,6 @@ class Bingo extends Component {
 			}
 		}
 	}
-
 	/*
 	 *  Reset Game Function
 	 *  Map out the original balls array and update

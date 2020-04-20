@@ -572,23 +572,21 @@ input[type='range']::-webkit-slider-thumb {
 	display: inline-block;
 	vertical-align: top;
 }
+
+.pattern {
+	min-width: 655px;
+}
+
 .pattern-prev,
 .pattern-next {
-	display: inline-block;
-	text-align: center;
-	height: 468px;
-	line-height: 468px;
+	display: inline-flex;
+	height: 100%;
 	background: #52658f;
 	color: #f4f4f4;
 	padding: 0px 12px;
 	cursor: pointer;
-}
-
-.pattern-next-arrow,
-.pattern-next-arrow {
-	display: inline-block;
-	vertical-align: middle;
-	line-height: normal;
+	flex-direction: column;
+	justify-content: center;
 }
 
 .pattern-prev:hover,
@@ -598,14 +596,14 @@ input[type='range']::-webkit-slider-thumb {
 
 .pattern-prev--disabled,
 .pattern-next--disabled {
-	display: inline-block;
-	text-align: center;
-	height: 468px;
-	line-height: 468px;
+	display: inline-flex;
+	height: 100%;
 	background: #52658f;
 	color: #aaa;
 	padding: 0px 12px;
 	cursor: default;
+	flex-direction: column;
+	justify-content: center;
 }
 
 .pattern-prev--disabled:hover,
