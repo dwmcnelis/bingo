@@ -4,7 +4,7 @@ class Menu extends React.Component {
 	constructor(props) {
 		super(props)
 		this.state = {
-			selected: null
+			selected: 0
 		}
 	}
 
@@ -40,12 +40,11 @@ class Pattern extends React.Component {
 	constructor(props) {
 		super(props)
 		this.state = {
-			selected: null,
-			previous: null,
-			ways: 0,
+			selected: 'Regular',
+			ways: 12,
 			offset: 0,
 			pattern: {
-				B: [false, false, false, false, false],
+				B: [true, true, true, true, true],
 				I: [false, false, false, false, false],
 				N: [false, false, false, false, false],
 				G: [false, false, false, false, false],
@@ -781,25 +780,19 @@ class Pattern extends React.Component {
 				}
 			})
 		} else {
-			let selected = e.value
-			let previous = this.state.previous
-			let pattern = this.state.presets[e.value]
-			let ways = pattern.length
-			var offset
-			if (selected === previous) {
-				offset = (this.state.offset + 1) % ways
-			} else {
-				offset = 0
+			const selected = e.value
+			if (selected) {
+				const patterns = this.state.presets[selected]
+				const ways = patterns.length
+				const offset = 0
+				const pattern = patterns[offset]
+				this.setState({
+					selected: selected,
+					ways: ways,
+					offset: offset,
+					pattern: pattern
+				})
 			}
-			pattern = pattern[offset]
-			previous = selected
-			this.setState({
-				selected: selected,
-				previous: previous,
-				ways: ways,
-				offset: offset,
-				pattern: pattern
-			})
 		}
 	}
 
@@ -815,6 +808,39 @@ class Pattern extends React.Component {
 		}
 	}
 
+	handlePrevPattern(e) {
+		// console.log('handlePrevPattern()')
+		// console.log('state', this.state)
+		let { selected, offset, ways, presets } = this.state
+		if (selected && ways > 0) {
+			offset = offset - 1
+			if (offset < 0) {
+				offset = ways - 1
+			}
+			// console.log('new offset: ', offset)
+			let pattern = presets[selected][offset]
+			this.setState({
+				offset: offset,
+				pattern: pattern
+			})
+		}
+	}
+
+	handleNextPattern(e) {
+		// console.log('handleNextPattern()')
+		// console.log('state', this.state)
+		let { selected, offset, ways, presets } = this.state
+		if (selected && ways > 0) {
+			offset = (offset + 1) % ways
+			// console.log('new offset: ', offset)
+			let pattern = presets[selected][offset]
+			this.setState({
+				offset: offset,
+				pattern: pattern
+			})
+		}
+	}
+
 	/*
 	 *  Render Pattern Function
 	 *  This will display a bingo card where the user can create their own pattern
@@ -823,7 +849,7 @@ class Pattern extends React.Component {
 	render() {
 		let pattern = this.state.pattern
 		let patternArray = Object.entries(this.state.presets).reduce((reduced, [name, pattern]) => {
-			reduced.push({ value: name, label: name })
+			reduced.push({ value: name, label: pattern.length > 1 ? `${name} (${pattern.length})` : name })
 			return reduced
 		}, [])
 
@@ -839,6 +865,12 @@ class Pattern extends React.Component {
 					/>
 				</div>
 				<div className="col c80 padding align-left">
+					<div
+						className={this.state.selected && this.state.ways > 1 ? 'pattern-prev' : 'pattern-prev--disabled'}
+						onClick={(e) => this.handlePrevPattern(e)}
+					>
+						<span className="pattern-prev-arrow">◀</span>
+					</div>
 					{Object.entries(pattern).map(([letter, column]) => (
 						<div key={letter} className="pattern-col">
 							<div className="pattern-letter">{letter}</div>
@@ -853,6 +885,12 @@ class Pattern extends React.Component {
 							))}
 						</div>
 					))}
+					<div
+						className={this.state.selected && this.state.ways > 1 ? 'pattern-next' : 'pattern-next--disabled'}
+						onClick={(e) => this.handleNextPattern(e)}
+					>
+						<span className="pattern-next-arrow">▶</span>
+					</div>
 				</div>
 			</div>
 		)
