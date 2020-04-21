@@ -1,9 +1,10 @@
-import React, { Component } from 'react'
+import React, { Component, useContext } from 'react'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import Cards from './components/Cards.js'
 import BingoBoard from './components/BingoBoard.js'
 import Pattern from './components/Pattern.js'
 import BallDisplay from './components/BallDisplay.js'
+import { ContextStore, DispatchContext } from './context'
 
 class Bingo extends Component {
 	constructor(props) {
@@ -139,54 +140,58 @@ class Bingo extends Component {
 	 *  Displays the bingo page
 	 */
 	render() {
+		const dispatch = useContext(DispatchContext)
+		//const state = useContext(StateContext)
+
 		return (
 			<div className="App">
-				<header>
-					<div className="row"></div>
-				</header>
-				<Tabs>
-					<TabList>
-						<Tab>Cards</Tab>
-						<Tab>Pattern</Tab>
-						<Tab>Game</Tab>
-					</TabList>
+				<ContextStore>
+					<header>
+						<div className="row"></div>
+					</header>
+					<Tabs>
+						<TabList>
+							<Tab>Cards</Tab>
+							<Tab>Pattern</Tab>
+							<Tab>Game</Tab>
+						</TabList>
 
-					<TabPanel>
-						<section className="padding">
-							<Cards />
-						</section>
-					</TabPanel>
+						<TabPanel>
+							<section className="padding">
+								<Cards />
+							</section>
+						</TabPanel>
 
-					<TabPanel>
-						<Pattern />
-					</TabPanel>
+						<TabPanel>
+							<Pattern />
+						</TabPanel>
 
-					<TabPanel>
-						<section className="separator">
-						</section>
-						<section id="board">
-							<div className="row flex">
-								<div className="col c15 ballcol">
-									<BallDisplay balls={this.state.balls} />
+						<TabPanel>
+							<section className="separator"></section>
+							<section id="board">
+								<div className="row flex">
+									<div className="col c15 ballcol">
+										<BallDisplay balls={this.state.balls} />
+									</div>
+									<div className="col c85">
+										<BingoBoard balls={this.state.balls} />
+									</div>
 								</div>
-								<div className="col c85">
-									<BingoBoard balls={this.state.balls} />
-								</div>
-							</div>
-						</section>
+							</section>
 
-						<section id="buttons">
-							<div className="row">
-								<div className="col c40">
-									<button onClick={this.callNumber}>Next</button>
+							<section id="buttons">
+								<div className="row">
+									<div className="col c40">
+										<button onClick={this.callNumber}>Next</button>
+									</div>
+									<div className="col c60 text-right">
+										<button onClick={dispatch({ type: 'REST_BALLS' })}>Reset</button>
+									</div>
 								</div>
-								<div className="col c60 text-right">
-									<button onClick={this.resetGame}>Reset</button>
-								</div>
-							</div>
-						</section>
-					</TabPanel>
-				</Tabs>
+							</section>
+						</TabPanel>
+					</Tabs>
+				</ContextStore>
 			</div>
 		)
 	}
