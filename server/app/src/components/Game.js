@@ -5,7 +5,6 @@ import BallDisplay from './BallDisplay.js'
 import { StateContext, DispatchContext } from '../context'
 
 const Game = () => {
-
 	const dispatch = useContext(DispatchContext)
 	const state = useContext(StateContext)
 
@@ -13,11 +12,9 @@ const Game = () => {
 		<div>
 			<section className="separator"></section>
 			<section id="board">
-				<div className="row flex">
-					<div className="col c5 ballcol">
+				<div className="row">
+					<div className="w200">
 						<BallHopper balls={state.balls} />
-					</div>
-					<div className="col c10 ballcol">
 						<BallDisplay balls={state.balls} />
 					</div>
 					<div className="col c85">
