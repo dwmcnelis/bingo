@@ -6,6 +6,7 @@ export const StateContext = createContext()
 export const DispatchContext = createContext()
 
 export const ContextStore = ({ children }) => {
+	// console.log('intialState', intialState)
 	const [state, dispatch] = useReducer(reducer, intialState)
 	return (
 		<>

@@ -1,3 +1,3 @@
-export default (patterns, action) => {
-	return patterns
+export default {
+	x: 1
 }
