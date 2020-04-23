@@ -10,12 +10,13 @@ const BingoBoard = ({ balls }) => {
 		G: balls.filter((ball) => ball.letter === 'G'),
 		O: balls.filter((ball) => ball.letter === 'O')
 	}
+	let colors = { 'B': 'indigo', 'I': 'ruby', 'N': 'kelly', 'G': 'alice', 'O': 'coral' }
 
 	return (
 		<div className="board">
 			{Object.keys(rows).map((letter) => (
 				<div key={'row' + letter} className="board-row">
-					<div key={letter} className="letter">
+					<div key={letter} className={`letter ${colors[letter]}`}>
 						{letter}
 					</div>
 					{Object.values(rows[letter]).map((ball) => (

@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import BingoBoard from './BingoBoard.js'
-import BallHopper from './BallHopper.js'
+import Hopper from './Hopper.js'
 import BallDisplay from './BallDisplay.js'
 import { StateContext, DispatchContext } from '../context'
 
@@ -8,19 +8,18 @@ const Game = () => {
 
 	const dispatch = useContext(DispatchContext)
 	const state = useContext(StateContext)
+	const ballCount = Object.values(state.balls).filter((ball) => !ball.called).length
 
 	return (
 		<div>
 			<section className="separator"></section>
 			<section id="board">
-				<div className="row flex">
-					<div className="col c5 ballcol">
-						<BallHopper balls={state.balls} />
-					</div>
-					<div className="col c10 ballcol">
+				<div className="row">
+					<div className="w200">
+						<Hopper balls={state.balls} />
 						<BallDisplay balls={state.balls} />
 					</div>
-					<div className="col c85">
+					<div className="col c100">
 						<BingoBoard balls={state.balls} />
 					</div>
 				</div>
@@ -28,7 +27,7 @@ const Game = () => {
 			<section id="buttons">
 				<div className="row">
 					<div className="col c40">
-						<button onClick={(e) => dispatch({ type: 'balls.call' })}>Next</button>
+						<button disabled={ballCount <= 0} onClick={(e) => dispatch({ type: 'balls.call' })}>Next</button>
 					</div>
 					<div className="col c60 text-right">
 						<button onClick={(e) => dispatch({ type: 'balls.reset' })}>Reset</button>
