@@ -5,7 +5,7 @@ export default (balls, action) => {
 	//console.log('reducer balls: ', balls, 'action: ', action)
 	if (action.type === 'balls.reset') {
 
-		// console.log('do balls.call...')
+		// console.log('do balls.reset...')
 		return intialState
 
 	}
@@ -32,6 +32,7 @@ export default (balls, action) => {
 		}
 
 	}
+
 	return balls || intialState
 
 }

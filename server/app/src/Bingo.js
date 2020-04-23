@@ -1,7 +1,7 @@
 import React from 'react'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import Cards from './components/Cards.js'
-import Pattern from './components/Pattern.js'
+import Patterns from './components/Patterns.js'
 import Game from './components/Game.js'
 import { ContextStore } from './context'
 
@@ -18,7 +18,7 @@ const Bingo = () => {
 
 					<TabList>
 						<Tab>Cards</Tab>
-						<Tab>Pattern</Tab>
+						<Tab>Patterns</Tab>
 						<Tab>Game</Tab>
 					</TabList>
 
@@ -29,7 +29,7 @@ const Bingo = () => {
 					</TabPanel>
 
 					<TabPanel>
-						<Pattern />
+						<Patterns />
 					</TabPanel>
 
 					<TabPanel>
