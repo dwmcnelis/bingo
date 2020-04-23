@@ -5,7 +5,6 @@ import BallDisplay from './BallDisplay.js'
 import { StateContext, DispatchContext } from '../context'
 
 const Game = () => {
-
 	const dispatch = useContext(DispatchContext)
 	const state = useContext(StateContext)
 	const ballCount = Object.values(state.balls).filter((ball) => !ball.called).length
