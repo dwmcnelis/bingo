@@ -589,8 +589,22 @@ input[type='range']::-webkit-slider-thumb {
 .pattern-margin {
 	margin-top: 0.75em;
 }
+.pattern-menu-item {
+	cursor: pointer;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	color: #8f8f8f;
+}
 
+.pattern-menu-item:hover {
+	background-color: #6c7fa9;
+}
 
+.pattern-menu-item.selected {
+	background: #1f325c;
+	color: #f4f4f4;
+}
 
 .pattern {
 	display: block;
@@ -600,7 +614,7 @@ input[type='range']::-webkit-slider-thumb {
 
 .pattern-title {
 	width: 100%;
- 	background-color: #52658f;
+	background-color: #52658f;
 	text-align: center;
 	color: #f4f4f4;
 }
@@ -609,7 +623,7 @@ input[type='range']::-webkit-slider-thumb {
 	width: 100%;
 	max-width: 100%;
 	margin: 0 auto;
-	align-items: center; 
+	align-items: center;
 }
 
 .pattern-col {
@@ -620,7 +634,7 @@ input[type='range']::-webkit-slider-thumb {
 .pattern-prev,
 .pattern-next {
 	display: inline-flex;
-	height: 100%;
+	height: 4em;
 	background: #52658f;
 	color: #f4f4f4;
 	padding: 0px 12px;
@@ -763,30 +777,13 @@ input[type='range']::-webkit-slider-thumb {
 	list-style: none;
 	background: #52658f;
 	color: #f4f4f4;
-	font-size: 0.5em;
-	line-height: 1.75em;
+	font-size: 0.75rem;
+	line-height: 1.5rem;
 	text-align: left;
-	padding: 0.5em 0.5em;
-	margin: 0em;
+	padding: 0.5rem 0.5rem;
+	margin: 0rem;
 	max-height: 470px;
 	overflow: scroll;
-}
-
-.pattern-menu-item {
-	cursor: pointer;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	overflow: hidden;
-	color: #8f8f8f;
-}
-
-.pattern-menu-item:hover {
-	background-color: #6c7fa9;
-}
-
-.pattern-menu-item.selected {
-	background: #1f325c;
-	color: #f4f4f4;
 }
 
 .react-tabs__tab {
@@ -859,6 +856,8 @@ input[type='range']::-webkit-slider-thumb {
 	width: 700px;
 	font-size: 0.65em;
 	line-height: 0.65em;
+	padding: 10px 0px 10px 0px;
+	margin-bottom: 10px;
 }
 
 .card-form-container input {
