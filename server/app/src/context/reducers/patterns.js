@@ -6,18 +6,6 @@ import intialState from '../state/patterns'
 // dispatch({ type: 'patterns.previous' })
 // dispatch({ type: 'patterns.toggle', payload: { letter: 'B', row: 0 } })
 
-// selected: 'Regular',
-// ways: 12,
-// way: 0,
-// 	current: {
-//   B: [true, true, true, true, true],
-//   I: [false, false, false, false, false],
-//   N: [false, false, false, false, false],
-//   G: [false, false, false, false, false],
-//   O: [false, false, false, false, false]
-// },
-// presets: { ... }
-
 export default (patterns, action) => {
 
   //console.log('reducer patterns: ', patterns, 'action: ', action)

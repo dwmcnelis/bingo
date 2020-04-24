@@ -1,8 +1,12 @@
 import intialState from '../state/balls'
 
+// dispatch({ type: 'balls.reset' })
+// dispatch({ type: 'balls.call' })
+
 export default (balls, action) => {
 
 	//console.log('reducer balls: ', balls, 'action: ', action)
+
 	if (action.type === 'balls.reset') {
 
 		// console.log('do balls.reset...')
@@ -24,10 +28,6 @@ export default (balls, action) => {
 				reduced[key] = ball
 				return reduced
 			}, {})
-
-		} else {
-
-			return balls
 
 		}
 
