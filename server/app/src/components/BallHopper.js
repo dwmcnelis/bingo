@@ -1,83 +1,36 @@
 import React from 'react'
+import { Stage, Layer } from 'react-konva'
+import HopperBall from './HopperBall'
+
+const WIDTH = 250
+const HEIGHT = 125
+const RADIUS = 8
+const SPEED = 30
+const MARGIN = 12
+
+const INDIGO = '#3c6478'
+const RUBY = '#cd594a'
+const KELLY = '#b5c689'
+const ALICE = '#43abc9'
+const CORAL = '#f58b4c'
 
 const BallHopper = ({ balls }) => {
-	let ballCount = Object.values(balls).filter((ball) => ball.called).length
-	//const colors = ["#3c6478", "#43abc9", "#cd594a", "#f58b4c", "#b5c689"];
-	let colors = { B: 'indigo', I: 'ruby', N: 'kelly', G: 'alice', O: 'coral' }
-	let bounces = { B: 'bounce0', I: 'bounce1', N: 'bounce2', G: 'bounce3', O: 'bounce4' }
 
-	const w = 250
-	const h = 110
-	const m = 10
-	for (let i = 0; i < 300; i++) {
-		const left = Math.floor(Math.random() * 100)
-		const top = Math.floor(Math.random() * 100)
-		let x = Math.floor(Math.random() * w * m)
-		let y = Math.floor(Math.random() * h * m)
-		const duration = Math.floor((Math.random() + 1) * 250)
-		console.log(`
-    @keyframes bounce${i} {
-      0% {
-        transform: translate(0, 0);  
-        animation-timing-function:ease-in-out;
-       }
-       100% {
-        transform: translate(${x}%, ${y}%);
-        animation-timing-function:ease-in-out
-       }
-    }
-    .bounce${i} {
-      top: ${top}%;
-      left: ${left}%;
-      animation-name: bounce${i};
-      animation-duration: ${duration}ms;
-      animation-timing-function: ease-in-out;
-      animation-delay: 0s;
-      animation-iteration-count: infinite;
-      animation-direction: alternate;
-      animation-fill-mode: both;
-    }`)
-	}
+  let colors = { 'B': INDIGO, 'I': RUBY, 'N': KELLY, 'G': ALICE, 'O': CORAL }
 
-	return (
-		<div className="ball-hopper">
-			{Object.values(balls).map((ball, index) => {
-				// Style
-				const factor = 0.95
-				const background = colors[ball.letter] || 'black'
-				const bounce = `bounce${Math.floor(Math.random() * 300)}` //bounces[ball.letter] || ''
-				const left = Math.floor(Math.random() * 100) + '%'
-				const top = Math.floor(Math.random() * 100) + '%'
-				let to = {
-					x: Math.random() * (index % 2 === 0 ? -23 : 23) * factor,
-					y: Math.random() * 24 * factor
-				}
-				const width = '0.5em'
-				const height = width
-				const style = {
-					background,
-					left: left,
-					top: top,
-					width,
-					height,
-					transformScale: Math.random(),
+  return (
+    <Stage className="hopper" width={WIDTH}
+      height={HEIGHT}>
+      <Layer>
+        {
+          Object.values(balls).filter((ball) => !ball.called).map((ball, index) => {
+            return <HopperBall key={`ball-${index}`} radius={RADIUS} color={colors[ball.letter]} containerWidth={WIDTH} containerHeight={HEIGHT} margin={MARGIN} speed={SPEED} />
+          })
+        }
+      </Layer>
+    </Stage>
+  )
 
-					animationDuration: (Math.random() + 1) * 250,
-					animationDirection: 'alternate',
-					animationFillMode: 'both',
-					animationPlayState: 'running',
-					animationIterationCount: 'infinite',
-					transitionTimingFunction: 'ease-in-out'
-				}
-
-				return !ball.called ? (
-					<div key={`hopper-ball-${index}`} className={'hopper-ball ' + background + ' ' + bounce} style={style}></div>
-				) : (
-					<></>
-				)
-			})}
-		</div>
-	)
 }
 
 export default BallHopper

@@ -2,7 +2,8 @@ import React from 'react'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import Packs from './components/Packs.js'
 import Patterns from './components/Patterns.js'
-import Game from './components/Game.js'
+import Hopper from './components/Hopper.js'
+import Card from './components/Card.js'
 import { ContextStore } from './context'
 
 const Bingo = () => {
@@ -17,7 +18,8 @@ const Bingo = () => {
 					<TabList>
 						<Tab>Packs</Tab>
 						<Tab>Patterns</Tab>
-						<Tab>Game</Tab>
+						<Tab>Hopper</Tab>
+						<Tab>Card</Tab>
 					</TabList>
 
 					<TabPanel>
@@ -31,8 +33,14 @@ const Bingo = () => {
 					</TabPanel>
 
 					<TabPanel>
-						<Game />
+						<Hopper />
 					</TabPanel>
+
+
+					<TabPanel>
+						<Card />
+					</TabPanel>
+
 
 				</Tabs>
 			</ContextStore>

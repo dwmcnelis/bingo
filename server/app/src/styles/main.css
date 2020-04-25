@@ -574,6 +574,15 @@ input[type='range']::-webkit-slider-thumb {
 
 /* Pattern */
 
+.patterns {
+	display: flex;
+	margin-left: auto;
+	margin-right: auto;
+	width: 100%;
+	max-width: 1085px;
+	min-width: 400px;
+}
+
 #bingopattern {
 	white-space: nowrap;
 	text-align: center;
@@ -618,6 +627,7 @@ input[type='range']::-webkit-slider-thumb {
 	text-align: center;
 	color: #f4f4f4;
 }
+
 .pattern-row {
 	display: flex;
 	width: 100%;
@@ -995,6 +1005,35 @@ input[type='range']::-webkit-slider-thumb {
 
 .groups > .group:hover {
 	background-color: #d2e5ff;
+}
+
+
+/* Card */
+
+.card {
+	display: flex;
+	margin-left: auto;
+	margin-right: auto;
+	width: 100%;
+	max-width: 1080px;
+	min-width: 400px;
+}
+
+
+
+.card-row {
+	display: flex;
+	width: 100%;
+	max-width: 100%;
+	margin: 0 auto;
+	align-items: center;
+}
+
+.card-title {
+	width: 100%;
+	background-color: #52658f;
+	text-align: center;
+	color: #f4f4f4;
 }
 
 .spinner-container {

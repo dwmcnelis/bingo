@@ -1,36 +1,40 @@
-import React from 'react'
-import { Stage, Layer } from 'react-konva'
-import HopperBall from './HopperBall'
+import React, { useContext } from 'react'
+import BingoBoard from './BingoBoard.js'
+import BallHopper from './BallHopper.js'
+import BallDisplay from './BallDisplay.js'
+import { StateContext, DispatchContext } from '../context'
 
-const WIDTH = 250
-const HEIGHT = 125
-const RADIUS = 8
-const SPEED = 30
-const MARGIN = 12
+const Hopper = () => {
+	const dispatch = useContext(DispatchContext)
+	const state = useContext(StateContext)
+	const ballCount = Object.values(state.balls).filter((ball) => !ball.called).length
 
-const INDIGO = '#3c6478'
-const RUBY = '#cd594a'
-const KELLY = '#b5c689'
-const ALICE = '#43abc9'
-const CORAL = '#f58b4c'
-
-const Hopper = ({ balls }) => {
-
-  let colors = { 'B': INDIGO, 'I': RUBY, 'N': KELLY, 'G': ALICE, 'O': CORAL }
-
-  return (
-    <Stage className="hopper" width={WIDTH}
-      height={HEIGHT}>
-      <Layer>
-        {
-          Object.values(balls).filter((ball) => !ball.called).map((ball, index) => {
-            return <HopperBall key={`ball-${index}`} radius={RADIUS} color={colors[ball.letter]} containerWidth={WIDTH} containerHeight={HEIGHT} margin={MARGIN} speed={SPEED} />
-          })
-        }
-      </Layer>
-    </Stage>
-  )
-
+	return (
+		<div>
+			<section className="separator"></section>
+			<section id="board">
+				<div className="row">
+					<div className="w200">
+						<BallHopper balls={state.balls} />
+						<BallDisplay balls={state.balls} />
+					</div>
+					<div className="col c100">
+						<BingoBoard balls={state.balls} />
+					</div>
+				</div>
+			</section>
+			<section id="buttons">
+				<div className="row">
+					<div className="col c40">
+						<button disabled={ballCount <= 0} onClick={(e) => dispatch({ type: 'balls.call' })}>Next</button>
+					</div>
+					<div className="col c60 text-right">
+						<button onClick={(e) => dispatch({ type: 'balls.reset' })}>Reset</button>
+					</div>
+				</div>
+			</section>
+		</div>
+	)
 }
 
 export default Hopper

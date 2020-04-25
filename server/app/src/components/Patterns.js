@@ -5,7 +5,7 @@ import Pattern from './Pattern'
 const Patterns = () => {
 
 	return (
-		<div className="row">
+		<div className="patterns">
 			<div className="col c20 padding align-left">
 				<PatternMenu />
 			</div>
